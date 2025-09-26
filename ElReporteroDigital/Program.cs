@@ -65,7 +65,15 @@ namespace ElReporteroDigital
                 await Task.Delay(300); 
                 ProgresoDescarga?.Invoke(i);
             }
+
+            //ReporteroListo?.Invoke("El articulo acerca de la 'Universidad' esta listo para publicar");
             return "\nNoticias de Ultima Hora.";
+        }
+
+        //Metodo asincrono encargado de mostrar el mensaje del evento reportero listo
+        public async Task ArticuloListo()
+        {
+            ReporteroListo?.Invoke();
         }
     }
 
@@ -79,6 +87,12 @@ namespace ElReporteroDigital
             //Captura de error try-catch
             try
             {
+                //Suscripcion al evento ReporteroListo
+                r.ReporteroListo += () =>
+                {
+                    Console.WriteLine("\nEl articulo acerca de la 'Universidad' esta listo para publicar");
+                };
+                Console.WriteLine();
                 //Suscripcion al Event Action ProgresoDescarga
                 r.ProgresoDescarga += (progreso) =>
                 {
@@ -97,20 +111,19 @@ namespace ElReporteroDigital
 
                 List<string> imgs = imagenes.Result;
 
-                //Suscripcion al evento ReporteroListo
-                r.ReporteroListo += () =>
-                {
-                    Console.WriteLine("\n------ Articulo listo ------");
-                };
-                
-                //Aqui es donde ensamblo el articulo
+                //Variable de tipo string encargada de almacenar la palabra clave
                 string keyword = await r.AnalyzeKeywordsAsync();
+
+                //Aqui es donde ensamblo el articulo
+                Console.WriteLine($"{art}");
 
                 Console.WriteLine($"{keyword}");
 
                 imgs.ForEach(img => Console.WriteLine($"- {img}"));
 
-                Console.WriteLine($"{art}");
+                //Llamada del metodo con el evento reportero listo
+                r.ArticuloListo();
+                
             }
             catch (ServidorNoDisponibleException ex)
             {
